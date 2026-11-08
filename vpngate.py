@@ -52,6 +52,9 @@ DEFAULT_VPNGATE_MIRROR = (
     "https://raw.githubusercontent.com/fdciabdul/Vpngate-Scraper-API/main/json/data.json"
 )
 DEFAULT_OPTIMAL_API = ""
+DEFAULT_US_SOCKS5_API = (
+    "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/countries/US/data.txt"
+)
 
 # 占位符检测：命中任意一个就认为用户还没配置
 PLACEHOLDER_MARKERS = ("你的", "YOUR_", "YOUR-", "example.com", "yourdomain")
@@ -296,6 +299,8 @@ class Config:
     template_html: str
     edge_hosts: tuple[str, ...]
     optimal_api: str
+    us_socks5_url: str
+    max_us_check_nodes: int
     nodes_url: str
     min_success_ratio: float
     max_residential_per_country: int
@@ -330,6 +335,8 @@ class Config:
             template_html=os.path.join(REPO_DIR, "web", "index.html"),
             edge_hosts=tuple(edge_hosts),
             optimal_api=os.environ.get("OPTIMAL_API", DEFAULT_OPTIMAL_API),
+            us_socks5_url=os.environ.get("US_SOCKS5_URL", DEFAULT_US_SOCKS5_API),
+            max_us_check_nodes=_env_int("MAX_US_CHECK_NODES", 60, minimum=0),
             nodes_url=derive_nodes_url(),
             min_success_ratio=_env_float("MIN_SUCCESS_RATIO", 0.0, minimum=0.0),
             max_residential_per_country=_env_int("MAX_RESIDENTIAL_PER_COUNTRY", 20),
@@ -516,6 +523,7 @@ class Node:
     ip: str
     country: str
     country_code: str
+    protocol: str = "sstp"
     ping: int | None = None
     score: int | None = None
 
@@ -526,6 +534,7 @@ class Node:
             "ip": self.ip,
             "country": self.country,
             "country_code": self.country_code,
+            "protocol": self.protocol,
             "ping": self.ping,
             "score": self.score,
         }
@@ -564,11 +573,54 @@ def to_sstp_nodes(rows: Iterable[dict[str, Any]]) -> list[Node]:
                 ip=(row.get("ip") or "").strip(),
                 country=(row.get("country_long") or "").strip(),
                 country_code=(row.get("country_short") or "").strip().upper(),
+                protocol="sstp",
                 ping=row.get("ping"),
                 score=row.get("score"),
             )
         )
     return nodes
+
+
+def fetch_us_socks5(cfg: Config, session: requests.Session) -> list[Node]:
+    """拉取美国 SOCKS5 代理候选节点（补充原生美国家宽）。"""
+    url = (cfg.us_socks5_url or "").strip()
+    if not url or cfg.max_us_check_nodes <= 0:
+        return []
+    try:
+        log("US SOCKS5", f"拉取美国 SOCKS5 代理源: {url}")
+        resp = session.get(url, timeout=min(cfg.http_timeout, 15.0))
+        if resp.status_code != 200:
+            log("US SOCKS5", f"获取失败，HTTP {resp.status_code}")
+            return []
+        candidates: list[Node] = []
+        for line in resp.text.splitlines():
+            line = line.strip()
+            if line.startswith("socks5://"):
+                m = re.match(r"^socks5://([0-9.]+):(\d+)$", line)
+                if m:
+                    ip, port = m.group(1), int(m.group(2))
+                    if 1 <= port <= 65535:
+                        candidates.append(
+                            Node(
+                                host=ip,
+                                port=port,
+                                ip=ip,
+                                country="美国",
+                                country_code="US",
+                                protocol="socks5",
+                            )
+                        )
+        log("US SOCKS5", f"获取到 {len(candidates)} 个候选节点")
+        if not candidates:
+            return []
+        import random
+        sample_count = min(len(candidates), cfg.max_us_check_nodes)
+        selected = random.sample(candidates, sample_count)
+        log("US SOCKS5", f"选取 {len(selected)} 个候选提交检测")
+        return selected
+    except Exception as exc:  # noqa: BLE001
+        log("US SOCKS5", f"拉取美国代理异常: {exc}")
+        return []
 
 
 def dedupe_nodes(nodes: Iterable[Node]) -> list[Node]:
@@ -617,11 +669,12 @@ def check_one(
     worker_base: str,
     timeout: float,
 ) -> dict[str, Any]:
+    proto = getattr(node, "protocol", "sstp") or "sstp"
     result: dict[str, Any] = node.to_dict()
     result.update(
         {
-            "protocol": "sstp",
-            "link": f"sstp://vpn:vpn@{node.host}:{node.port}",
+            "protocol": proto,
+            "link": f"socks5://{node.host}:{node.port}" if proto == "socks5" else f"sstp://vpn:vpn@{node.host}:{node.port}",
             "status": "failed",
             "success": False,
             "checked_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
@@ -633,7 +686,11 @@ def check_one(
             "residential": "unknown",
         }
     )
-    url = worker_base + quote(f"{node.host}:{node.port}", safe="")
+    if proto == "socks5":
+        parts = urlsplit(worker_base)
+        url = f"{parts.scheme}://{parts.netloc}/check?socks5={quote(f'{node.host}:{node.port}', safe='')}"
+    else:
+        url = worker_base + quote(f"{node.host}:{node.port}", safe="")
     try:
         response = session.get(url, timeout=timeout)
         if response.status_code != 200:
@@ -660,11 +717,15 @@ def check_one(
                 "country": exit_info.get("country"),
                 "country_code": exit_info.get("country_code"),
                 "city": exit_info.get("city"),
+                "subdivision": exit_info.get("subdivision"),
                 "continent": exit_info.get("continent"),
                 "asn": asn.get("asn"),
                 "org": org,
                 "is_datacenter": exit_info.get("is_datacenter"),
             }
+            if exit_info.get("country_code"):
+                result["country_code"] = str(exit_info.get("country_code")).upper()
+                result["country"] = COUNTRY_ZH.get(result["country_code"], exit_info.get("country"))
             result["residential"] = classify_network(org, exit_info.get("is_datacenter"))
         elif success:
             result["residential"] = "unknown"
@@ -707,11 +768,12 @@ def check_all(
             except Exception:  # noqa: BLE001
                 pass
         future.cancel()
+        proto = getattr(node, "protocol", "sstp") or "sstp"
         stub = node.to_dict()
         stub.update(
             {
-                "protocol": "sstp",
-                "link": f"sstp://vpn:vpn@{node.host}:{node.port}",
+                "protocol": proto,
+                "link": f"socks5://{node.host}:{node.port}" if proto == "socks5" else f"sstp://vpn:vpn@{node.host}:{node.port}",
                 "status": "failed",
                 "success": False,
                 "checked_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
@@ -848,16 +910,37 @@ def build_nodes_text(data: dict[str, Any], edge_hosts: list[str], cfg: Config) -
     )
     for code, group in ordered:
         name = COUNTRY_ZH.get(code) or group.get("name") or code
-        nodes = sorted(
-            group["nodes"],
-            key=lambda n: (n.get("residential") != "residential", n.get("latency_ms") is None, n.get("latency_ms") or 0),
-        )
+
+        def node_sort_key(n: dict[str, Any]) -> tuple:
+            exit_i = n.get("exit") or {}
+            c = str(exit_i.get("city") or "").lower()
+            sub = str(exit_i.get("subdivision") or "").lower()
+            # 美国优先排序：洛杉矶第一梯队 (0) > 加州第二梯队 (1) > 其他美国家宽 (2)
+            if code == "US":
+                if "angeles" in c or c == "la":
+                    us_tier = 0
+                elif sub == "california" or any(ca in c for ca in ["san diego", "san jose", "san francisco", "irvine", "quail hill", "santa barbara", "long beach", "anaheim"]):
+                    us_tier = 1
+                else:
+                    us_tier = 2
+            else:
+                us_tier = 0
+
+            return (
+                n.get("residential") != "residential",
+                us_tier,
+                n.get("latency_ms") is None,
+                n.get("latency_ms") or 0,
+            )
+
+        nodes = sorted(group["nodes"], key=node_sort_key)
         residential = [n for n in nodes if n.get("residential") == "residential"]
         others = [n for n in nodes if n.get("residential") != "residential"]
         chosen = residential[: cfg.max_residential_per_country] + others[: cfg.max_datacenter_per_country]
         counters = {"residential": 0, "datacenter": 0, "unknown": 0}
         for node in chosen:
-            link = f"sstp://vpn:vpn@{node['host']}:{node['port']}"
+            proto = node.get("protocol") or "sstp"
+            link = node.get("link") or (f"socks5://{node['host']}:{node['port']}" if proto == "socks5" else f"sstp://vpn:vpn@{node['host']}:{node['port']}")
             if link in seen_links:
                 continue
             seen_links.add(link)
@@ -868,8 +951,18 @@ def build_nodes_text(data: dict[str, Any], edge_hosts: list[str], cfg: Config) -
             index += 1
             flag = COUNTRY_FLAGS.get(code, "🌐")
             exit_info = node.get("exit") or {}
-            city = (exit_info.get("city") or "").strip()
-            city_part = f"·{city}" if city and len(city) < 15 and city.isascii() else ""
+            city = str(exit_info.get("city") or "").strip()
+            subdiv = str(exit_info.get("subdivision") or "").strip()
+            city_lower = city.lower()
+            if code == "US" and ("angeles" in city_lower or city_lower == "la"):
+                city_display = "Los Angeles"
+            elif code == "US" and subdiv.lower() == "california" and city:
+                city_display = f"CA-{city}"
+            elif city:
+                city_display = city
+            else:
+                city_display = ""
+            city_part = f"·{city_display}" if city_display and len(city_display) < 22 and city_display.isascii() else ""
             node_label = f"{flag} {name}{city_part}-{kind}-{counters[kind_key]:02d}"
             lines.append(f"{entry}#{sanitize_remark(node_label)}${link}")
     return "\n".join(lines) + ("\n" if lines else "")
@@ -963,15 +1056,19 @@ def main() -> None:
     if sstp_count == 0:
         die("VPN GATE", f"从 {raw_count} 个原始节点中没有解析出任何 SSTP(TCP) 节点")
 
-    unique_nodes = prioritize(dedupe_nodes(sstp_nodes))
+    unique_sstp = prioritize(dedupe_nodes(sstp_nodes))
     if cfg.max_check_nodes > 0:
-        unique_nodes = unique_nodes[: cfg.max_check_nodes]
+        unique_sstp = unique_sstp[: cfg.max_check_nodes]
 
-    log("VPN GATE", f"原始节点 {raw_count}, SSTP {sstp_count}, 去重后 {len(unique_nodes)}")
-    log("CLOUDFLARE WORKER", f"提交检测: {len(unique_nodes)}")
+    # 美国专属 SOCKS5 家宽补充源（嗅探洛杉矶及加州真实住宅）
+    us_nodes = fetch_us_socks5(cfg, session)
+    all_nodes = unique_sstp + us_nodes
+
+    log("VPN GATE", f"原始节点 {raw_count}, SSTP {sstp_count}, 去重后 {len(unique_sstp)}, 美国 SOCKS5 候选 {len(us_nodes)}")
+    log("CLOUDFLARE WORKER", f"提交检测: {len(all_nodes)}")
 
     check_started = time.time()
-    results, timed_out = check_all(unique_nodes, session, cfg)
+    results, timed_out = check_all(all_nodes, session, cfg)
     elapsed = time.time() - check_started
 
     success = [r for r in results if r.get("success")]
@@ -980,13 +1077,13 @@ def main() -> None:
 
     log("CLOUDFLARE WORKER", f"成功 {len(success)}, 失败 {len(failed)}（Worker 异常 {len(worker_errors)}）, 用时 {elapsed:.1f}s")
 
-    if unique_nodes and not success and len(worker_errors) == len(unique_nodes):
+    if all_nodes and not success and len(worker_errors) == len(all_nodes):
         die("CLOUDFLARE WORKER", "检测 Worker 全部请求异常，本次不发布（保留上一次产物）")
 
-    if unique_nodes and not success:
+    if all_nodes and not success:
         die("RESULT", "所有节点检测失败，本次不发布（保留上一次产物）")
 
-    ratio = len(success) / len(unique_nodes) if unique_nodes else 0.0
+    ratio = len(success) / len(all_nodes) if all_nodes else 0.0
     if cfg.min_success_ratio > 0 and ratio < cfg.min_success_ratio:
         die(
             "RESULT",
