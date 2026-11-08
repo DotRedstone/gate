@@ -122,6 +122,20 @@ jobs:
         uses: actions/deploy-pages@v4
 
 
+
+      - name: Sync nodes.txt to Cloudflare KV
+        if: env.CF_API_TOKEN != "" && env.CF_ACCOUNT_ID != "" && env.CF_KV_ID != ""
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_KV_ID: ${{ secrets.CF_KV_ID }}
+        run: |
+          curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/storage/kv/namespaces/${CF_KV_ID}/values/ADD.txt" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Content-Type: text/plain" \
+            --data-binary @public/nodes.txt
+          echo "Successfully synced nodes.txt to Cloudflare KV!"
+
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
