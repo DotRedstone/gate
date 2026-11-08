@@ -582,7 +582,7 @@ def to_sstp_nodes(rows: Iterable[dict[str, Any]]) -> list[Node]:
 
 
 def fetch_us_socks5(cfg: Config, session: requests.Session) -> list[Node]:
-    """拉取美国 SOCKS5 代理候选节点（补充原生美国家宽）。"""
+    """拉取美国 SOCKS5 代理候选节点（优先定位洛杉矶与加州家宽）。"""
     url = (cfg.us_socks5_url or "").strip()
     if not url or cfg.max_us_check_nodes <= 0:
         return []
@@ -592,7 +592,8 @@ def fetch_us_socks5(cfg: Config, session: requests.Session) -> list[Node]:
         if resp.status_code != 200:
             log("US SOCKS5", f"获取失败，HTTP {resp.status_code}")
             return []
-        candidates: list[Node] = []
+
+        ip_ports: dict[str, list[int]] = {}
         for line in resp.text.splitlines():
             line = line.strip()
             if line.startswith("socks5://"):
@@ -600,23 +601,80 @@ def fetch_us_socks5(cfg: Config, session: requests.Session) -> list[Node]:
                 if m:
                     ip, port = m.group(1), int(m.group(2))
                     if 1 <= port <= 65535:
-                        candidates.append(
-                            Node(
+                        ip_ports.setdefault(ip, []).append(port)
+
+        total_candidates = sum(len(p) for p in ip_ports.values())
+        log("US SOCKS5", f"获取到 {len(ip_ports)} 个独立 IP，共 {total_candidates} 个候选节点")
+        if not ip_ports:
+            return []
+
+        # 针对美国代理源做轻量级地域预嗅探（批量查询 IP 地理位置，优先提取洛杉矶与加州）
+        import random
+        unique_ips = list(ip_ports.keys())
+        sample_ips = unique_ips[:300]
+        la_candidates: list[Node] = []
+        ca_candidates: list[Node] = []
+        other_candidates: list[Node] = []
+
+        try:
+            for i in range(0, len(sample_ips), 100):
+                chunk = sample_ips[i : i + 100]
+                payload = json.dumps([{"query": ip} for ip in chunk]).encode("utf-8")
+                b_resp = session.post(
+                    "http://ip-api.com/batch",
+                    data=payload,
+                    headers={"Content-Type": "application/json"},
+                    timeout=8.0,
+                )
+                if b_resp.status_code == 200:
+                    for item in b_resp.json():
+                        ip = item.get("query")
+                        city = (item.get("city") or "").lower()
+                        region = item.get("regionName") or ""
+                        ports = ip_ports.get(ip, [1080])
+                        for p in ports:
+                            node = Node(
                                 host=ip,
-                                port=port,
+                                port=p,
                                 ip=ip,
                                 country="美国",
                                 country_code="US",
                                 protocol="socks5",
                             )
-                        )
-        log("US SOCKS5", f"获取到 {len(candidates)} 个候选节点")
-        if not candidates:
-            return []
-        import random
-        sample_count = min(len(candidates), cfg.max_us_check_nodes)
-        selected = random.sample(candidates, sample_count)
-        log("US SOCKS5", f"选取 {len(selected)} 个候选提交检测")
+                            if "angeles" in city or city == "la":
+                                la_candidates.append(node)
+                            elif region == "California":
+                                ca_candidates.append(node)
+                            else:
+                                other_candidates.append(node)
+        except Exception as e:
+            log("US SOCKS5", f"批量地理预查跳过或降级: {e}")
+
+        # 按优先级装配：洛杉矶 > 加州 > 其他
+        random.shuffle(la_candidates)
+        random.shuffle(ca_candidates)
+        random.shuffle(other_candidates)
+
+        log("US SOCKS5", f"预嗅探结果: 洛杉矶候选 {len(la_candidates)} 个, 加州候选 {len(ca_candidates)} 个, 其他 {len(other_candidates)} 个")
+        selected: list[Node] = []
+        selected.extend(la_candidates)
+        selected.extend(ca_candidates)
+        if len(selected) < cfg.max_us_check_nodes:
+            rem = cfg.max_us_check_nodes - len(selected)
+            selected.extend(other_candidates[:rem])
+        else:
+            selected = selected[: cfg.max_us_check_nodes]
+
+        # 兜底：如果预查异常未命中，回退到随机抽样
+        if not selected:
+            all_fallback = [
+                Node(host=ip, port=p, ip=ip, country="美国", country_code="US", protocol="socks5")
+                for ip, ports in ip_ports.items()
+                for p in ports
+            ]
+            selected = random.sample(all_fallback, min(len(all_fallback), cfg.max_us_check_nodes))
+
+        log("US SOCKS5", f"最终选取 {len(selected)} 个候选节点提交检测 Worker")
         return selected
     except Exception as exc:  # noqa: BLE001
         log("US SOCKS5", f"拉取美国代理异常: {exc}")
