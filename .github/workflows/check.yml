@@ -124,7 +124,7 @@ jobs:
 
 
       - name: Sync nodes.txt to Cloudflare KV
-        if: env.CF_API_TOKEN != "" && env.CF_ACCOUNT_ID != "" && env.CF_KV_ID != ""
+        if: env.CF_API_TOKEN != '' && env.CF_ACCOUNT_ID != '' && env.CF_KV_ID != ''
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
