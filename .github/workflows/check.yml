@@ -3,11 +3,9 @@ name: VPN Gate Node Check
 # 模板仓库默认不配置定时任务：需要自动更新时，把下面的注释替换成你自己的 cron。
 # 注意：GitHub 调度最小间隔约 5 分钟，但通常会延迟几分钟；仓库连续 60 天无提交会让定时任务自动停用。
 #
-# on:
-#   schedule:
-#     - cron: '*/30 * * * *'
-
 on:
+  schedule:
+    - cron: '*/30 * * * *'
   workflow_dispatch:
     inputs:
       max_nodes:
@@ -24,7 +22,7 @@ on:
         default: '25'
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -122,6 +120,14 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
 
       - name: Show site URL
         run: |
