@@ -88,6 +88,17 @@ RESIDENTIAL_ORG_KEYWORDS = [
     "BREEZE", "TIM S.P.A", "LIBERO", "FASTWEB", "FREE FRANCE", "BT OPEN",
 ]
 
+
+COUNTRY_FLAGS = {
+    "JP": "🇯🇵", "KR": "🇰🇷", "US": "🇺🇸", "CA": "🇨🇦", "RU": "🇷🇺",
+    "RO": "🇷🇴", "TH": "🇹🇭", "VN": "🇻🇳", "DE": "🇩🇪", "FR": "🇫🇷",
+    "GB": "🇬🇧", "UK": "🇬🇧", "SG": "🇸🇬", "TW": "🇹🇼", "HK": "🇭🇰",
+    "CN": "🇨🇳", "AU": "🇦🇺", "NL": "🇳🇱", "SE": "🇸🇪", "CH": "🇨🇭",
+    "IT": "🇮🇹", "ES": "🇪🇸", "PL": "🇵🇱", "IN": "🇮🇳", "BR": "🇧🇷",
+    "MX": "🇲🇽", "ID": "🇮🇩", "MY": "🇲🇾", "PH": "🇵🇭", "TR": "🇹🇷",
+    "UA": "🇺🇦", "CZ": "🇨🇿", "GR": "🇬🇷", "PT": "🇵🇹", "FI": "🇫🇮",
+}
+
 COUNTRY_ZH = {
     "JP": "日本", "KR": "韩国", "US": "美国", "CA": "加拿大", "RU": "俄罗斯",
     "RO": "罗马尼亚", "TH": "泰国", "VN": "越南", "DE": "德国", "FR": "法国",
@@ -855,7 +866,12 @@ def build_nodes_text(data: dict[str, Any], edge_hosts: list[str], cfg: Config) -
             kind = {"residential": "住宅", "datacenter": "机房", "unknown": "未知"}[kind_key]
             entry = edge_hosts[index % len(edge_hosts)]
             index += 1
-            lines.append(f"{entry}#{sanitize_remark(f'{name}-{kind}-{counters[kind_key]:02d}')}${link}")
+            flag = COUNTRY_FLAGS.get(code, "🌐")
+            exit_info = node.get("exit") or {}
+            city = (exit_info.get("city") or "").strip()
+            city_part = f"·{city}" if city and len(city) < 15 and city.isascii() else ""
+            node_label = f"{flag} {name}{city_part}-{kind}-{counters[kind_key]:02d}"
+            lines.append(f"{entry}#{sanitize_remark(node_label)}${link}")
     return "\n".join(lines) + ("\n" if lines else "")
 
 
