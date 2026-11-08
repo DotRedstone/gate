@@ -1,43 +1,44 @@
-saas.sin.fan:443#韩国-住宅-01$sstp://vpn:vpn@vpn644344996.opengw.net:1628
-www.mfyx.cn:443#韩国-住宅-02$sstp://vpn:vpn@vpn150192869.opengw.net:1209
-cf.nyanya.moe:443#韩国-住宅-03$sstp://vpn:vpn@vpn621912399.opengw.net:995
-cf.877774.xyz:443#韩国-住宅-04$sstp://vpn:vpn@vpn214946447.opengw.net:1786
-cdn.204910.best:443#韩国-住宅-05$sstp://vpn:vpn@vpn654677818.opengw.net:1724
-cdn.ctn32.us.kg:443#韩国-住宅-06$sstp://vpn:vpn@vpn883356300.opengw.net:995
-p.etime.vip:443#韩国-住宅-07$sstp://vpn:vpn@vpn859005905.opengw.net:1800
-cmcc.vvvv.ee:443#韩国-住宅-08$sstp://vpn:vpn@vpn687618522.opengw.net:1666
-cfsaas.080112.xyz:443#韩国-住宅-09$sstp://vpn:vpn@vpn362285254.opengw.net:1686
-cdn.aneko.ink:443#韩国-住宅-10$sstp://vpn:vpn@vpn368694634.opengw.net:1545
-hk.cf.3666888.xyz:443#韩国-住宅-11$sstp://vpn:vpn@vpn394246060.opengw.net:995
-best.hzample.kdns.fr:443#韩国-住宅-12$sstp://vpn:vpn@vpn192568087.opengw.net:995
-ctsg.cfyx.aliyun.20237737.xyz:443#韩国-住宅-13$sstp://vpn:vpn@vpn890053288.opengw.net:995
-china-unicom.cname.cloudflare.468123.xyz:443#韩国-住宅-14$sstp://vpn:vpn@vpn702836191.opengw.net:1927
-saas.sin.fan:443#韩国-住宅-15$sstp://vpn:vpn@vpn187387457.opengw.net:1464
-www.mfyx.cn:443#韩国-住宅-16$sstp://vpn:vpn@vpn915736499.opengw.net:1944
-cf.nyanya.moe:443#韩国-住宅-17$sstp://vpn:vpn@vpn783575401.opengw.net:1414
-cf.877774.xyz:443#韩国-住宅-18$sstp://vpn:vpn@vpn931755758.opengw.net:995
-cdn.204910.best:443#韩国-住宅-19$sstp://vpn:vpn@vpn887119329.opengw.net:995
-cdn.ctn32.us.kg:443#韩国-住宅-20$sstp://vpn:vpn@vpn300618663.opengw.net:1898
-p.etime.vip:443#日本-住宅-01$sstp://vpn:vpn@vpn277254909.opengw.net:1662
-cmcc.vvvv.ee:443#日本-住宅-02$sstp://vpn:vpn@vpn173939682.opengw.net:1944
-cfsaas.080112.xyz:443#日本-住宅-03$sstp://vpn:vpn@vpn593689384.opengw.net:1467
-cdn.aneko.ink:443#日本-住宅-04$sstp://vpn:vpn@vpn371090610.opengw.net:1605
-hk.cf.3666888.xyz:443#日本-住宅-05$sstp://vpn:vpn@vpn714838600.opengw.net:1568
-best.hzample.kdns.fr:443#日本-住宅-06$sstp://vpn:vpn@vpn736078005.opengw.net:1923
-ctsg.cfyx.aliyun.20237737.xyz:443#日本-住宅-07$sstp://vpn:vpn@vpn313091159.opengw.net:1308
-china-unicom.cname.cloudflare.468123.xyz:443#日本-住宅-08$sstp://vpn:vpn@vpn591509589.opengw.net:1944
-saas.sin.fan:443#日本-住宅-09$sstp://vpn:vpn@vpn993894201.opengw.net:1651
-www.mfyx.cn:443#日本-住宅-10$sstp://vpn:vpn@vpn634109661.opengw.net:1284
-cf.nyanya.moe:443#日本-住宅-11$sstp://vpn:vpn@vpn537901911.opengw.net:1388
-cf.877774.xyz:443#日本-住宅-12$sstp://vpn:vpn@vpn239083808.opengw.net:1612
-cdn.204910.best:443#日本-住宅-13$sstp://vpn:vpn@vpn798554514.opengw.net:1666
-cdn.ctn32.us.kg:443#日本-住宅-14$sstp://vpn:vpn@vpn836042621.opengw.net:1294
-p.etime.vip:443#日本-住宅-15$sstp://vpn:vpn@vpn844197835.opengw.net:1411
-cmcc.vvvv.ee:443#日本-住宅-16$sstp://vpn:vpn@vpn820552091.opengw.net:1465
-cfsaas.080112.xyz:443#日本-住宅-17$sstp://vpn:vpn@vpn946692838.opengw.net:1819
-cdn.aneko.ink:443#日本-机房-01$sstp://vpn:vpn@laud.opengw.net:443
-hk.cf.3666888.xyz:443#越南-住宅-01$sstp://vpn:vpn@vpn982262633.opengw.net:1296
-best.hzample.kdns.fr:443#越南-住宅-02$sstp://vpn:vpn@vpn399301599.opengw.net:1482
-ctsg.cfyx.aliyun.20237737.xyz:443#越南-住宅-03$sstp://vpn:vpn@vpn967988014.opengw.net:1992
-china-unicom.cname.cloudflare.468123.xyz:443#越南-住宅-04$sstp://vpn:vpn@vpn439009803.opengw.net:1614
-saas.sin.fan:443#马来西亚-住宅-01$sstp://vpn:vpn@vpn919050053.opengw.net:1998
+saas.sin.fan:443#🇯🇵 日本·Tokyo-住宅-01$sstp://vpn:vpn@vpn469796077.opengw.net:1805
+www.mfyx.cn:443#🇯🇵 日本·Tokyo-住宅-02$sstp://vpn:vpn@vpn239083808.opengw.net:1612
+cf.nyanya.moe:443#🇯🇵 日本·Chiba-住宅-03$sstp://vpn:vpn@vpn371090610.opengw.net:1605
+cf.877774.xyz:443#🇯🇵 日本·Tokyo-住宅-04$sstp://vpn:vpn@vpn384735620.opengw.net:1656
+cdn.204910.best:443#🇯🇵 日本·Honcho-住宅-05$sstp://vpn:vpn@vpn167421173.opengw.net:1771
+cdn.ctn32.us.kg:443#🇯🇵 日本·Tokyo-住宅-06$sstp://vpn:vpn@vpn609012261.opengw.net:1276
+p.etime.vip:443#🇯🇵 日本·Machida-住宅-07$sstp://vpn:vpn@vpn760147126.opengw.net:1502
+cmcc.vvvv.ee:443#🇯🇵 日本·Tokyo-住宅-08$sstp://vpn:vpn@vpn811338032.opengw.net:1893
+cfsaas.080112.xyz:443#🇯🇵 日本·Shizuoka-住宅-09$sstp://vpn:vpn@vpn659619016.opengw.net:1286
+cdn.aneko.ink:443#🇯🇵 日本·Nakano-住宅-10$sstp://vpn:vpn@vpn479254153.opengw.net:1841
+hk.cf.3666888.xyz:443#🇯🇵 日本·Tokyo-住宅-11$sstp://vpn:vpn@vpn463146607.opengw.net:1769
+best.hzample.kdns.fr:443#🇯🇵 日本·Shiroi-住宅-12$sstp://vpn:vpn@vpn579932260.opengw.net:1674
+ctsg.cfyx.aliyun.20237737.xyz:443#🇯🇵 日本·Tokyo-住宅-13$sstp://vpn:vpn@vpn349212081.opengw.net:1656
+china-unicom.cname.cloudflare.468123.xyz:443#🇯🇵 日本·Hiroshima-住宅-14$sstp://vpn:vpn@vpn695292984.opengw.net:1774
+saas.sin.fan:443#🇯🇵 日本·Tokyo-住宅-15$sstp://vpn:vpn@vpn125817256.opengw.net:1999
+www.mfyx.cn:443#🇯🇵 日本·Tokyo-住宅-16$sstp://vpn:vpn@vpn851315872.opengw.net:1986
+cf.nyanya.moe:443#🇯🇵 日本·Kyoto-住宅-17$sstp://vpn:vpn@vpn490021382.opengw.net:1871
+cf.877774.xyz:443#🇯🇵 日本·Sapporo-住宅-18$sstp://vpn:vpn@vpn171221818.opengw.net:1350
+cdn.204910.best:443#🇯🇵 日本·Tokyo-机房-01$sstp://vpn:vpn@vpn928190785.opengw.net:1284
+cdn.ctn32.us.kg:443#🇰🇷 韩国·Seongnam-si-住宅-01$sstp://vpn:vpn@vpn190413251.opengw.net:995
+p.etime.vip:443#🇰🇷 韩国·Seongnam-si-住宅-02$sstp://vpn:vpn@vpn348580824.opengw.net:995
+cmcc.vvvv.ee:443#🇰🇷 韩国·Seoul-住宅-03$sstp://vpn:vpn@vpn258326420.opengw.net:1662
+cfsaas.080112.xyz:443#🇰🇷 韩国·Hanam-住宅-04$sstp://vpn:vpn@vpn918224196.opengw.net:1428
+cdn.aneko.ink:443#🇰🇷 韩国·Yangju-住宅-05$sstp://vpn:vpn@vpn925023097.opengw.net:995
+hk.cf.3666888.xyz:443#🇰🇷 韩国·Cheongju-si-住宅-06$sstp://vpn:vpn@vpn603475244.opengw.net:1671
+best.hzample.kdns.fr:443#🇰🇷 韩国·Cheongju-si-住宅-07$sstp://vpn:vpn@vpn427568298.opengw.net:1881
+ctsg.cfyx.aliyun.20237737.xyz:443#🇰🇷 韩国·Seoul-住宅-08$sstp://vpn:vpn@vpn293598259.opengw.net:995
+china-unicom.cname.cloudflare.468123.xyz:443#🇰🇷 韩国·Seoul-住宅-09$sstp://vpn:vpn@vpn711658835.opengw.net:995
+saas.sin.fan:443#🇰🇷 韩国·Cheongju-si-住宅-10$sstp://vpn:vpn@vpn459091833.opengw.net:1434
+www.mfyx.cn:443#🇰🇷 韩国·Seoul-住宅-11$sstp://vpn:vpn@vpn662886976.opengw.net:995
+cf.nyanya.moe:443#🇰🇷 韩国·Seongnam-si-住宅-12$sstp://vpn:vpn@vpn761837620.opengw.net:995
+cf.877774.xyz:443#🇰🇷 韩国·Gwangmyeong-住宅-13$sstp://vpn:vpn@vpn675512812.opengw.net:1422
+cdn.204910.best:443#🇰🇷 韩国·Seongnam-si-住宅-14$sstp://vpn:vpn@vpn233643910.opengw.net:995
+cdn.ctn32.us.kg:443#🇰🇷 韩国·Geoje-住宅-15$sstp://vpn:vpn@vpn957218909.opengw.net:1814
+p.etime.vip:443#🇰🇷 韩国·Seoul-住宅-16$sstp://vpn:vpn@vpn948322276.opengw.net:1236
+cmcc.vvvv.ee:443#🇰🇷 韩国·Seoul-住宅-17$sstp://vpn:vpn@vpn396690601.opengw.net:995
+cfsaas.080112.xyz:443#🇰🇷 韩国·Seoul-住宅-18$sstp://vpn:vpn@vpn625788434.opengw.net:995
+cdn.aneko.ink:443#🇰🇷 韩国·Gyeongsan-si-住宅-19$sstp://vpn:vpn@vpn834281156.opengw.net:995
+hk.cf.3666888.xyz:443#🇷🇺 俄罗斯·Yekaterinburg-住宅-01$sstp://vpn:vpn@vpn114639283.opengw.net:1780
+best.hzample.kdns.fr:443#🇷🇺 俄罗斯·Chita-住宅-02$sstp://vpn:vpn@vpn345427412.opengw.net:1222
+ctsg.cfyx.aliyun.20237737.xyz:443#🇹🇭 泰国·Bangkok-住宅-01$sstp://vpn:vpn@vpn984062575.opengw.net:1374
+china-unicom.cname.cloudflare.468123.xyz:443#🇹🇼 台湾·Taipei-住宅-01$sstp://vpn:vpn@jayporeonvpn01.opengw.net:443
+saas.sin.fan:443#🇺🇸 美国·San Diego-住宅-01$sstp://vpn:vpn@vpn302088784.opengw.net:1353
+www.mfyx.cn:443#🇻🇳 越南·Hanoi-住宅-01$sstp://vpn:vpn@vpn353555430.opengw.net:1431
